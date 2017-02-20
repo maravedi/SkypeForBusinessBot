@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace LyncBot.Core.Dialogs
 {
-    [LuisModel("model id", "subs key")]
+    [LuisModel("3a91f550-4ed6-4628-adad-84f008eb9bfc", "9fad47d8a341461fbf07b0dfdf25c945")]
     [Serializable]
     public class LyncLuisDialog : LuisDialog<object>
     {
@@ -20,20 +20,47 @@ namespace LyncBot.Core.Dialogs
         {
             _presenceService = presenceService;
         }
-        [LuisIntent("")]
+        [LuisIntent("None")]
         public async Task None(IDialogContext context, IAwaitable<IMessageActivity> message, LuisResult result)
         {
-            //await context.PostAsync("I'm sorry. I didn't understand you.");
+            await context.PostAsync("I'm sorry. I didn't understand you.");
             // Dont do anything. Pretend I am busy.
             context.Wait(MessageReceived);
         }
 
-        [LuisIntent("HiGreetings")]
-        public async Task HiGreetings(IDialogContext context, IAwaitable<IMessageActivity> message, LuisResult result)
+        [LuisIntent("WelcomeGreetings")]
+        public async Task WelcomeGreetings(IDialogContext context, IAwaitable<IMessageActivity> message, LuisResult result)
         {
             var activity = await message;
             string name = GetName(activity.From);
-            await context.PostOnlyOnceAsync(Responses.HiGreetingsResponse(name), nameof(HiGreetings));
+            await context.PostOnlyOnceAsync(Responses.WelcomeGreetingsResponse(name), nameof(WelcomeGreetings));
+            context.Wait(MessageReceived);
+        }
+
+        [LuisIntent("PasswordReset")]
+        public async Task PasswordReset(IDialogContext context, IAwaitable<IMessageActivity> message, LuisResult result)
+        {
+            //string name = string.Empty;
+            //if (!context.PrivateConversationData.ContainsKey(nameof(WelcomeGreetings)))
+            //{
+            var activity = await message;
+            string name = GetName(activity.From);
+            //}
+            await context.PostOnlyOnceAsync(Responses.PasswordResetResponse(name), nameof(PasswordReset));
+            context.Wait(MessageReceived);
+        }
+
+        [LuisIntent("UnlockAccount")]
+        public async Task UnlockAccount(IDialogContext context, IAwaitable<IMessageActivity> message, LuisResult result)
+        {
+            //string name = string.Empty;
+            //if (!context.PrivateConversationData.ContainsKey(nameof(WelcomeGreetings)))
+            //{
+            var activity = await message;
+            string name = activity.From.Id;
+            string text = activity.Text;
+            //}
+            await context.PostOnlyOnceAsync(Responses.UnlockAccountResponse(name, text), nameof(UnlockAccount));
             context.Wait(MessageReceived);
         }
 
@@ -41,7 +68,7 @@ namespace LyncBot.Core.Dialogs
         public async Task GoodMorningGreetings(IDialogContext context, IAwaitable<IMessageActivity> message, LuisResult result)
         {
             string name = string.Empty;
-            if (!context.PrivateConversationData.ContainsKey(nameof(HiGreetings)))
+            if (!context.PrivateConversationData.ContainsKey(nameof(WelcomeGreetings)))
             {
                 var activity = await message;
                 name = GetName(activity.From);
@@ -75,5 +102,7 @@ namespace LyncBot.Core.Dialogs
             }
             return name;
         }
+
     }
+
 }
